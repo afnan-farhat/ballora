@@ -27,6 +27,10 @@ class EmailRequest(BaseModel):
 # ----------------- App Setup -----------------
 app = FastAPI()
 
+# Read CORS origins from environment
+cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173")
+origins = [origin.strip() for origin in cors_origins.split(",")]
+
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
