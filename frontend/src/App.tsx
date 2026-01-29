@@ -43,7 +43,7 @@ function App() {
 
   const [message, setMessage] = useState("Loading...");
 
-   useEffect(() => {
+  useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/message`)
       .then(res => res.json())
       .then(data => {
@@ -60,6 +60,7 @@ function App() {
     <Router>
       <Header />
       <ProfileNotification />
+      <p>{message}</p>
 
       <section className="min-h-[calc(100vh-96px)]">
         <Routes>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { ChangeEvent, FormEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { Download, Info, X } from "lucide-react";
 import GradientButton from "../../../component/GradientButton";
 import WhiteButton from "../../../component/WhiteButton";
