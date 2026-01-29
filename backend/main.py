@@ -32,6 +32,7 @@ cors_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173")
 origins = [origin.strip() for origin in cors_origins.split(",")]
 
 origins = [
+    "https://ballora-website-blue2f8qi-afnans-projects-4780cb5c.vercel.app",
     "http://localhost:5173",
     "http://localhost:3000",
     "http://localhost:5174"
