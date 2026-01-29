@@ -99,6 +99,10 @@ def send_email(req: EmailRequest):
     except Exception as e:
         return {"success": False, "error": str(e)}
 
+@app.get("/message")
+def message():
+    return {"message": "Hello from FastAPI backend"}
+
 # ----------------- Run -----------------
 if __name__ == "__main__":
     import uvicorn
