@@ -11,4 +11,4 @@ reportlab
 pytest
 httpx
 locust
-
+torch==2.2.2+cpu
