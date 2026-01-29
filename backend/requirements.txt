@@ -2,13 +2,3 @@ fastapi
 uvicorn[standard]
 pydantic
 python-dotenv
-gradio
-google-generativeai
-google-genai
-sentence-transformers==2.7.0
-pandas
-reportlab
-pytest
-httpx
-locust
-torch==2.2.2
