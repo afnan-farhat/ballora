@@ -13,9 +13,9 @@ import textstat
 from dotenv import load_dotenv
 from google import genai
 from google.genai.types import Schema, GenerateContentConfig
-from sentence_transformers import SentenceTransformer
-import textstat
+# from sentence_transformers import SentenceTransformer
 from langdetect import detect, LangDetectException
+import numpy as np
 
 # ============= Logging Setup =============
 logging.basicConfig(level=logging.INFO)
@@ -58,7 +58,10 @@ app = FastAPI(title="Idea Validation API", version="2.0")
 origins = [
     "http://localhost:5173",
     "http://localhost:3000",
-    "http://localhost:5174"
+    "http://localhost:5174",
+    "https://ballora-website.vercel.app/"
+    "https://ballora-website-blue2f8qi-afnans-projects-4780cb5c.vercel.app",
+
 ]
 
 app.add_middleware(
@@ -79,17 +82,19 @@ if not API_KEY:
     raise RuntimeError("GEMINI_API_KEY not found in .env")
 
 client = genai.Client(api_key=API_KEY)
-embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+# embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 SIM_THRESHOLD = 0.82
 
 
 # ============= Utility Functions =============
-def embed_text(text: str) -> list:
-    """Generate embedding for text"""
+def embed_text(text: str) -> np.ndarray:
     if not text or not text.strip():
-        return embedder.encode([" "])[0]  # Return neutral embedding for empty text
-    return embedder.encode([text])[0]
-
+        text = " "
+    result = client.models.embed_content(
+        model="models/text-embedding-004",
+        contents=text
+    )
+    return np.array(result.embeddings[0].values)
 
 def cosine(a, b) -> float:
     """Calculate cosine similarity between two vectors"""
