@@ -41,7 +41,7 @@ const AddIdeaForm: React.FC<AddIdeaFormProps> = ({ }) => {
   const bmcRef = useRef<HTMLDivElement>(null);
 
   // Stores all user-entered form data
-  
+
   const [formData, setFormData] = useState<IdeaData>({
     ideaName: '',
     problem: '',
@@ -91,7 +91,7 @@ const AddIdeaForm: React.FC<AddIdeaFormProps> = ({ }) => {
   }, []);
 
 
-  
+
   // ------------------- VALIDATION PROCESS -------------------
 
   // ------------------- Send Idea Data to AI Backend -------------------
@@ -324,11 +324,18 @@ const AddIdeaForm: React.FC<AddIdeaFormProps> = ({ }) => {
     setRejectionTips(null);
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/ideas", {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+
+      const response = await fetch(`${API_BASE_URL}/ideas`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
       const result = await response.json();
 
       if (result.status === "error") {
@@ -367,6 +374,7 @@ const AddIdeaForm: React.FC<AddIdeaFormProps> = ({ }) => {
         setRejectionTips(null);
         setIsEditable(true);
       }
+
 
     } catch (error) {
       console.error("Error generating BMC:", error);
