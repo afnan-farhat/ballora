@@ -367,7 +367,7 @@ Rules:
 @app.get("/health")
 def health_check():
     """Health check endpoint"""
-    return {"status": "healthy"}
+    return {"status": "okay"}
 
 
 @app.get("/ideas")
@@ -477,6 +477,11 @@ def add_idea(idea: Idea):
 def get_ideas_count():
     """Get total number of stored ideas"""
     return {"total_ideas": len(memory_db["ideas"])}
+
+
+@app.get("/message")
+def message():
+    return {"message": "Hello from FastAPI backend"}
 
 
 if __name__ == "__main__":
