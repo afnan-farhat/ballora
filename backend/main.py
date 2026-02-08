@@ -61,6 +61,7 @@ origins = [
     "http://localhost:5174",
     "https://ballora-website.vercel.app/"
     "https://ballora-website-blue2f8qi-afnans-projects-4780cb5c.vercel.app",
+    "https://ballora-website.vercel.app"
 
 ]
 
