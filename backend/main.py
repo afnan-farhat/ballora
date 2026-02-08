@@ -80,12 +80,25 @@ app.add_middleware(
 memory_db = {"ideas": []}
 
 # ============= AI / Gemini Setup =============
-load_dotenv()
+if not os.getenv("RENDER"):
+    load_dotenv()
+    print("Running locally: .env file loaded.")
+else:
+    print("Running on Render: Using Dashboard Environment Variables.")
+
+# 2. Get the API Key from the system
 API_KEY = os.getenv("GEMINI_API_KEY")
+
+# 3. Handle the missing key gracefully so the server doesn't crash on boot
 if not API_KEY:
-    raise RuntimeError("GEMINI_API_KEY not found in .env")
+    print("❌ ERROR: GEMINI_API_KEY not found!")
+    # We don't raise an error here so the /health and /message routes still work
+else:
+    print("✅ GEMINI_API_KEY detected.")
+
 
 client = genai.Client(api_key=API_KEY)
+
 # embedder = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 SIM_THRESHOLD = 0.82
 
@@ -295,7 +308,7 @@ Rules:
 """
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -314,7 +327,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -352,7 +365,7 @@ Rules:
 """
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
