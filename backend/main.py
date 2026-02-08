@@ -59,10 +59,13 @@ origins = [
     "http://localhost:5173",
     "http://localhost:3000",
     "http://localhost:5174",
-    "https://ballora-website.vercel.app/"
     "https://ballora-website-blue2f8qi-afnans-projects-4780cb5c.vercel.app",
-    "https://ballora-website.vercel.app"
-
+    # Your Main Production Domain
+    "https://ballora-website.vercel.app", 
+    # Your Specific Backend Branch Domain
+    "https://ballora-website-git-backend-afnans-projects-4780cb5c.vercel.app",
+    # (Optional) The specific commit deployment if you want to be extra safe
+    "https://ballora-website-5apiio0q0-afnans-projects-4780cb5c.vercel.app"
 ]
 
 app.add_middleware(
