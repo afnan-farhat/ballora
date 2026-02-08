@@ -36,11 +36,6 @@ import ProfileNotification from "./pages/AllUsers/ProfileNotification";
 
 function App() {
   const { userRole, loading } = useUser();
-
-  if (loading) {
-    return <div className="flex justify-center items-center min-h-screen"></div>;
-  }
-
   const [message, setMessage] = useState("Loading...");
 
   useEffect(() => {
@@ -56,6 +51,11 @@ function App() {
       });
   }, []);
 
+    if (loading) {
+    return <div className="flex justify-center items-center min-h-screen"></div>;
+  }
+
+  
   return (
     <Router>
       <Header />
