@@ -10,3 +10,4 @@ httpx
 textstat
 numpy
 langdetect
+
