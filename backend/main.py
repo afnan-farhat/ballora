@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, validator
 from typing import List, Optional
 import textstat
+import time
 
 from dotenv import load_dotenv
 from google import genai
@@ -222,31 +223,43 @@ def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, fields: List
     fields_text = ", ".join(fields) if fields else "General"
     prompt = f"Generate a full Business Model Canvas in JSON for: Problem: {problem}, Solution: {solution}, UVP: {uvp}, Fields: {fields_text}{lvl}"
     
-    resp = None
-    try:
-        # Fix 1: Updated to gemini-2.0-flash
-        resp = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-            config=GenerateContentConfig(
-                response_mime_type="application/json",
-                response_schema=BMC_SCHEMA,
-                temperature=0.4,
-            ),
-        )
-        return safe_json_loads(resp.text)
-    except Exception as e:
-        # Fix 2: Safe logging of 'resp'
-        logger.error(f"Error generating BMC: {e}")
-        if resp:
-            logger.error(f"Full Gemini response: {resp.text}")
-        raise
+    for attempt in range(3): # Try 3 times
+        try:
+            # Using 1.5-flash as it is more stable for free tier quotas
+            resp = client.models.generate_content(
+                model="gemini-1.5-flash", 
+                contents=prompt,
+                config=GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=BMC_SCHEMA,
+                    temperature=0.4,
+                ),
+            )
+            return safe_json_loads(resp.text)
+
+        except Exception as e:
+            error_msg = str(e)
+            logger.error(f"Attempt {attempt+1} failed: {error_msg}")
+
+            # Check if we should retry (429 = Rate Limit)
+            if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+                wait_time = (attempt + 1) * 5  # Wait 5s, then 10s
+                logger.warning(f"Quota hit. Retrying in {wait_time}s...")
+                time.sleep(wait_time)
+                continue # Go to next iteration of the 'for' loop
+            
+            # If it's NOT a quota error (e.g., 400 or 404), stop immediately
+            raise e
+
+    # If all 3 attempts fail
+    raise Exception("Failed to generate BMC after 3 attempts due to API limits.")
+
 
 def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -261,7 +274,7 @@ def generate_improvement_tips_with_gemini(problem: str, solution: str, uvp: str,
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
