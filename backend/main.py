@@ -90,7 +90,7 @@ def embed_text(text: str) -> np.ndarray:
         text = " "
     # Fix 1: Removed leading slash from model name
     result = client.models.embed_content(
-        model="text-embedding-004",
+        model="gemini-embedding-001",
         contents=text
     )
     return np.array(result.embeddings[0].values)
