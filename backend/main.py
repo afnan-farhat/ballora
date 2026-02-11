@@ -254,25 +254,26 @@ def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
 
 
 # ============= Gemini AI Schemas =============
-BMC_SCHEMA = Schema(
-    type="OBJECT",
-    properties={
-        "key_partners": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "key_activities": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "key_resources": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "value_propositions": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "customer_relationships": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "channels": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "customer_segments": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "cost_structure": Schema(type="ARRAY", items=Schema(type="STRING")),
-        "revenue_streams": Schema(type="ARRAY", items=Schema(type="STRING")),
+# Simplify your schema to test if this stops the 500 error
+BMC_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "key_partners": {"type": "array", "items": {"type": "string"}},
+        "key_activities": {"type": "array", "items": {"type": "string"}},
+        "key_resources": {"type": "array", "items": {"type": "string"}},
+        "value_propositions": {"type": "array", "items": {"type": "string"}},
+        "customer_relationships": {"type": "array", "items": {"type": "string"}},
+        "channels": {"type": "array", "items": {"type": "string"}},
+        "customer_segments": {"type": "array", "items": {"type": "string"}},
+        "cost_structure": {"type": "array", "items": {"type": "string"}},
+        "revenue_streams": {"type": "array", "items": {"type": "string"}},
     },
-    required=[
+    "required": [
         "key_partners", "key_activities", "key_resources", "value_propositions",
         "customer_relationships", "channels", "customer_segments",
         "cost_structure", "revenue_streams"
     ],
-)
+}
 
 TIPS_SCHEMA = Schema(
     type="OBJECT",
@@ -308,7 +309,7 @@ Rules:
 """
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -327,7 +328,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -365,7 +366,7 @@ Rules:
 """
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
