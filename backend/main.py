@@ -89,12 +89,11 @@ else:
 # 2. Get the API Key from the system
 API_KEY = os.getenv("GEMINI_API_KEY")
 
+
 # 3. Handle the missing key gracefully so the server doesn't crash on boot
 if not API_KEY:
-    print("❌ ERROR: GEMINI_API_KEY not found!")
-    # We don't raise an error here so the /health and /message routes still work
-else:
-    print("✅ GEMINI_API_KEY detected.")
+    raise RuntimeError("❌ GEMINI_API_KEY not found! Add it in Render Dashboard")
+
 
 
 client = genai.Client(api_key=API_KEY)
@@ -309,7 +308,7 @@ Rules:
 """
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -320,6 +319,7 @@ Rules:
         return safe_json_loads(resp.text)
     except Exception as e:
         logger.error(f"Error generating BMC: {e}")
+        logger.error(f"Full Gemini response: {getattr(resp, 'text', 'No response')}")
         raise
 
 
@@ -328,7 +328,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -366,7 +366,7 @@ Rules:
 """
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash-lite",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",

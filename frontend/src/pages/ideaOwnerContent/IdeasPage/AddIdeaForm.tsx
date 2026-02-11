@@ -378,7 +378,7 @@ const AddIdeaForm: React.FC<AddIdeaFormProps> = ({ }) => {
 
     } catch (error) {
       console.error("Error generating BMC:", error);
-      alert("Failed to connect to the server.");
+      alert(error.message || "Failed to connect to the server.");
     } finally {
       setIsLoading(false);
     }
