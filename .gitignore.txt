@@ -1,6 +1,9 @@
+# Ignore .env files in ANY folder (Backend, Frontend, etc.)
+**/.env
+**/.env.local
+
+# Ignore these common folders
 node_modules/
 __pycache__/
-.env
-.env.local
 dist/
 .venv/
