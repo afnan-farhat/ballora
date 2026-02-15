@@ -203,7 +203,7 @@ export default function JoinUs(): React.ReactElement {
 
         if (typeof error === "object" && error !== null && "code" in error) {
           const firebaseError = error as { code: string };
-          
+
           switch (firebaseError.code) {
             case "auth/email-already-in-use":
               errorMessage = "Email already in use";
@@ -229,11 +229,12 @@ export default function JoinUs(): React.ReactElement {
 
 
   return (
-    <div className="flex items-center justify-center p-4 min-h-screen bg-gradient-to-b from-transparent via-[#EEF9F8] to-transparent">
+    <div className="flex flex-col items-center justify-start p-4 pt-12 md:pt-20 min-h-screen bg-[#fcfdfd] relative overflow-x-hidden">
+
       <div className="w-full max-w-[650px] mx-auto">
-        <div className="bg-white rounded-[12px] shadow-lg px-40 py-5">
+        <div className="bg-white rounded-[12px] shadow-lg px-16 py-5">
           <div className="text-center mb-5">
-            <h1 className="text-[43px] font-petrona font-bold text-[#1E4263] mb-2">
+            <h1 className="text-4xl md:text-4xl lg:text-[50px] font-bold font-petrona text-[#1E4263] text-center mb-10">
               Create Account
             </h1>
             <p className="text-gray-600 text-lg">
@@ -250,41 +251,43 @@ export default function JoinUs(): React.ReactElement {
             }}
           >
             {/* First Name */}
-            <div>
-              <label className="block text-m font-bold text-gray-700 mb-2">
-                First Name{" "}
-                {errors.firstName && <span className="text-red-500">*</span>}
-              </label>
-              <input
-                type="text"
-                name="firstName"
-                value={formData.firstName}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 rounded-[12px] disabled:opacity-50"
-              />
-              {errors.firstName && (
-                <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
-              )}
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-m font-bold text-gray-700 mb-2">
+                  First Name{" "}
+                  {errors.firstName && <span className="text-red-500">*</span>}
+                </label>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-[12px] disabled:opacity-50"
+                />
+                {errors.firstName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.firstName}</p>
+                )}
+              </div>
 
-            {/* Last Name */}
-            <div>
-              <label className="block text-m font-bold text-gray-700 mb-2">
-                Last Name{" "}
-                {errors.lastName && <span className="text-red-500">*</span>}
-              </label>
-              <input
-                type="text"
-                name="lastName"
-                value={formData.lastName}
-                onChange={handleInputChange}
-                disabled={isLoading}
-                className="w-full px-4 py-3 border border-gray-300 rounded-[12px] disabled:opacity-50"
-              />
-              {errors.lastName && (
-                <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
-              )}
+              {/* Last Name */}
+              <div>
+                <label className="block text-m font-bold text-gray-700 mb-2">
+                  Last Name{" "}
+                  {errors.lastName && <span className="text-red-500">*</span>}
+                </label>
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleInputChange}
+                  disabled={isLoading}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-[12px] disabled:opacity-50"
+                />
+                {errors.lastName && (
+                  <p className="text-red-500 text-sm mt-1">{errors.lastName}</p>
+                )}
+              </div>
             </div>
 
             {/* Email */}
@@ -393,14 +396,15 @@ export default function JoinUs(): React.ReactElement {
             </div>
 
             {/* Submit */}
-            <GradientButton
-              type="submit"
-              className="w-full h-10 text-[16px]"
-              disabled={isLoading}
-            >
-              Create Account
-            </GradientButton>
-
+            <div className="flex justify-center pt-4">
+              <GradientButton
+                type="submit"
+className="w-full md:w-64 h-12 text-[16px] font-semibold shadow-lg transition-transform active:scale-95"
+                disabled={isLoading}
+              >
+                Create Account
+              </GradientButton>
+            </div>
             <div className="text-center">
               <span className="text-gray-600 text-m">
                 Already have an account?{" "}

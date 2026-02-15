@@ -160,16 +160,16 @@ export default function Signin() {
     }
   };
 
- 
+
   return (
     <div className="flex items-center justify-center p-4 min-h-screen bg-gradient-to-b from-transparent via-[#EEF9F8] to-transparent">
       <div className="w-full max-w-[650px] mx-auto">
-        <div className="bg-white rounded-[12px] shadow-lg px-40 py-5">
+        <div className="bg-white rounded-[12px] shadow-lg px-16 py-5">
           <div className="text-center mb-5">
-            <h1 className="text-[43px] font-petrona font-bold text-[#1E4263] mb-2">
+            <h1 className="text-4xl md:text-4xl lg:text-[50px] font-bold font-petrona text-[#1E4263] text-center mb-10">
               Sign in
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-[21px] py-5 text-gray-600 text-center">
               Please login to continue to your account
             </p>
           </div>
@@ -177,14 +177,14 @@ export default function Signin() {
           <form
             className="space-y-6"
             onSubmit={(e) => {
-              e.preventDefault(); 
-              handleSubmit(); 
+              e.preventDefault();
+              handleSubmit();
             }}
           >
             {/* Email Field */}
             <div>
               <label className="block text-m font-bold text-gray-700 mb-2">
-               Email{" "}
+                Email{" "}
                 {errors.email && <span className="text-red-500">*</span>}
               </label>
               <input
@@ -273,21 +273,22 @@ export default function Signin() {
             <div className="text-right">
               <button
                 type="button"
-                onClick={() => navigate("/ResetPassword")} 
+                onClick={() => navigate("/ResetPassword")}
                 className="text-[#619994] hover:text-[#83aca8] text-sm font-semibold underline"
               >
                 Forgot Password?
               </button>
             </div>
             {/* Log in Button */}
-            <GradientButton
-              type="submit"
-              className="w-full h-10 text-[16px]"
-              disabled={isLoading}
-            >
-              Log in
-            </GradientButton>
-
+            <div className="flex justify-center pt-4">
+              <GradientButton
+                type="submit"
+                className="w-full md:w-64 h-12 text-[16px] font-semibold shadow-lg transition-transform active:scale-95"
+                disabled={isLoading}
+              >
+                Log in
+              </GradientButton>
+            </div>
             {/* Create Account Link */}
             <div className="text-center">
               <span className="text-gray-600 text-m">
@@ -295,7 +296,7 @@ export default function Signin() {
               </span>
               <button
                 type="button"
-                onClick={() => navigate("/joinus")} 
+                onClick={() => navigate("/joinus")}
                 className="text-[#619994] hover:text-[#83aca8] text-m font-semibold underline"
               >
                 Create Account
