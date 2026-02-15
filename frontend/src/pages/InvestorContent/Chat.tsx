@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Send, Paperclip, Image, FileText, Download, ChevronLeft } from 'lucide-react';
 
 // Routing and Firebase utilities
-import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useParams, useNavigate,  } from 'react-router-dom';
 import { collection, doc, query, where, orderBy, onSnapshot, getDoc, Timestamp } from 'firebase/firestore';
 import { db, auth } from '../../firebase';
 import { sendMessageLogic } from "../../utils/sendMessage";
@@ -16,7 +16,6 @@ const upload = UploadClient({ apiKey: "public_W23MTRB4KCyCEpHHZigugRnUKhMS" });
 const Chat: React.FC = () => {
   const { id: routeConversationId } = useParams<{ id?: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
   const currentUser = auth.currentUser;
 
   const [conversationId, setConversationId] = useState<string | null>(routeConversationId || null);
@@ -133,6 +132,7 @@ const Chat: React.FC = () => {
       fileName: file.name,
       text: 'Uploading...',
       createdAt: Timestamp.now(),
+      content: undefined
     };
 
     setUploadingMessages((prev) => [...prev, tempMessage]);
