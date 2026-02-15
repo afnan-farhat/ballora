@@ -30,14 +30,14 @@ class Idea(BaseModel):
     fields: Optional[List[str]] = Field(default_factory=list, description="Industry/domain fields")
 
     @validator('problem', 'solution', 'advantages', pre=True, always=True)
-    def clean_text_fields(cls, v):
+    async def clean_text_fields(cls, v):
         if isinstance(v, str):
             v = v.strip()
             return v if v else None
         return v
 
     @validator('fields', pre=True, always=True)
-    def clean_fields(cls, v):
+    async def clean_fields(cls, v):
         if v is None:
             return []
         if isinstance(v, str):
@@ -85,7 +85,7 @@ client = genai.Client(api_key=API_KEY)
 SIM_THRESHOLD = 0.82
 
 # ============= Utility Functions =============
-def embed_text(text: str) -> np.ndarray:
+async def embed_text(text: str) -> np.ndarray:
     if not text or not text.strip():
         text = " "
     # Fix 1: Removed leading slash from model name
@@ -95,20 +95,20 @@ def embed_text(text: str) -> np.ndarray:
     )
     return np.array(result.embeddings[0].values)
 
-def cosine(a, b) -> float:
+async def cosine(a, b) -> float:
     num = float((a * b).sum())
     da = math.sqrt(float((a * a).sum()))
     db = math.sqrt(float((b * b).sum()))
     return 0.0 if da == 0 or db == 0 else num / (da * db)
 
-def unified_repr(problem: Optional[str], solution: Optional[str], fields: List[str], advantage: Optional[str]) -> str:
+async def unified_repr(problem: Optional[str], solution: Optional[str], fields: List[str], advantage: Optional[str]) -> str:
     problem = problem or ""
     solution = solution or ""
     advantage = advantage or ""
     fields_text = ", ".join(fields) if fields else ""
     return f"Problem: {problem} | Solution: {solution} | fields: {fields_text} | Advantage: {advantage}"
 
-def is_gibberish(text: Optional[str]) -> bool:
+async def is_gibberish(text: Optional[str]) -> bool:
     if not text or len(text.strip()) < 10:
         return True
     cleaned = re.sub(r'[^A-Za-zء-ي]+', '', text)
@@ -122,7 +122,7 @@ def is_gibberish(text: Optional[str]) -> bool:
         return True
     return False
 
-def is_valid_language(text: Optional[str]) -> bool:
+async def is_valid_language(text: Optional[str]) -> bool:
     if not text or len(text.strip()) < 5:
         return False
     try:
@@ -132,7 +132,7 @@ def is_valid_language(text: Optional[str]) -> bool:
     except LangDetectException:
         return False
 
-def is_coherent(text: Optional[str]) -> bool:
+async def is_coherent(text: Optional[str]) -> bool:
     if not text or len(text.strip()) < 10:
         return False
     try:
@@ -150,7 +150,7 @@ def is_coherent(text: Optional[str]) -> bool:
         logger.warning(f"Error checking coherence: {e}")
         return True 
 
-def is_problem_solution_related(problem: Optional[str], solution: Optional[str]) -> bool:
+async def is_problem_solution_related(problem: Optional[str], solution: Optional[str]) -> bool:
     if not problem or not solution:
         return True 
     try:
@@ -162,11 +162,11 @@ def is_problem_solution_related(problem: Optional[str], solution: Optional[str])
         logger.warning(f"Error checking problem-solution relation: {e}")
         return True 
 
-def safe_json_loads(text: str) -> dict:
+async def safe_json_loads(text: str) -> dict:
     text = text.strip().strip("```json").strip("```").strip()
     return json.loads(text)
 
-def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
+async def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
     if not existing_ideas:
         return False, 0.0, None
     new_vec = embed_text(unified_repr(new_idea.problem, new_idea.solution, new_idea.fields, new_idea.advantages))
@@ -218,7 +218,7 @@ TIPS_SCHEMA = Schema(
 )
 
 # ============= Gemini AI Functions =============
-def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, fields: List[str], readinessLevel: Optional[str] = None) -> dict:
+async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, fields: List[str], readinessLevel: Optional[str] = None) -> dict:
     lvl = f"\n- Idea Level: {readinessLevel}" if readinessLevel else ""
     fields_text = ", ".join(fields) if fields else "General"
     prompt = f"Generate a full Business Model Canvas in JSON for: Problem: {problem}, Solution: {solution}, UVP: {uvp}, Fields: {fields_text}{lvl}"
@@ -255,7 +255,7 @@ def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, fields: List
     raise Exception("Failed to generate BMC after 3 attempts due to API limits.")
 
 
-def generate_summary_with_gemini(problem: str, solution: str) -> str:
+async def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
@@ -268,7 +268,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
         logger.error(f"Error generating summary: {e}")
         raise
 
-def generate_improvement_tips_with_gemini(problem: str, solution: str, uvp: str, fields: List[str], nearest: str, score: float, readinessLevel: Optional[str] = None) -> dict:
+async  def generate_improvement_tips_with_gemini(problem: str, solution: str, uvp: str, fields: List[str], nearest: str, score: float, readinessLevel: Optional[str] = None) -> dict:
     lvl = f"\n  - Idea Level: {readinessLevel}" if readinessLevel else ""
     fields_text = ", ".join(fields) if fields else "General"
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
@@ -289,15 +289,15 @@ def generate_improvement_tips_with_gemini(problem: str, solution: str, uvp: str,
 
 # ============= API Routes =============
 @app.get("/health")
-def health_check():
+async  def health_check():
     return {"status": "okay"}
 
 @app.get("/ideas")
-def get_ideas():
+async  def get_ideas():
     return {"ideas": memory_db["ideas"]}
 
 @app.post("/ideas")
-def add_idea(idea: Idea):
+async  def add_idea(idea: Idea):
     try:
         errors = {}
         # content validation logic
@@ -339,11 +339,11 @@ def add_idea(idea: Idea):
         raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @app.get("/ideas/count")
-def get_ideas_count():
+async  def get_ideas_count():
     return {"total_ideas": len(memory_db["ideas"])}
 
 @app.get("/message")
-def message():
+async  def message():
     return {"message": "Hello from FastAPI backend"}
 
 if __name__ == "__main__":

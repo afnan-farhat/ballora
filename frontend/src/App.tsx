@@ -35,32 +35,74 @@ import ResetPassword from "./pages/authentication/ResetPassword";
 import ProfileNotification from "./pages/AllUsers/ProfileNotification";
 
 function App() {
-  const { userRole, loading } = useUser();
-  const [message, setMessage] = useState("Loading...");
+  const { userRole, loading: authLoading } = useUser();
+  const [, setMessage] = useState("");
+  const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/message`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         setMessage(data.message);
-        console.log("Message from backend:", data.message); // prints in console to test the Backend connection
+        setDataLoading(false);
       })
-      .catch(() => {
-        setMessage("Error");
-        console.error("Failed to fetch message");
+      .catch((err) => {
+        setMessage("Connection Error");
+        setDataLoading(false);
       });
   }, []);
 
-    if (loading) {
-    return <div className="flex justify-center items-center min-h-screen"></div>;
+  // Branded Loading State
+  if (authLoading || dataLoading) {
+    return (
+      <div className="flex flex-col justify-center items-center min-h-screen bg-white relative overflow-hidden">
+
+        {/* Background Elements */}
+        <div className="fixed inset-0 w-full h-full bg-[url('/bg_hero1.png')] bg-cover bg-center z-0"></div>
+        <div className="absolute bottom-0 left-0 w-full h-[500px] bg-[url('/bg4.png')] bg-contain bg-cover bg-center z-0"></div>
+
+        {/* Content wrapper */}
+        <div className="flex flex-col items-center relative z-10">
+
+          {/* Logo Section */}
+          <div className="relative mb-8">
+            <div
+              className="absolute -inset-3 rounded-full opacity-20 animate-ping"
+              style={{ backgroundColor: '#a4ebe7' }}
+            ></div>
+            <img
+              src="/ballora_logo.png"
+              alt="Ballora"
+              className="inline-block w-80 h-auto"
+            />
+          </div>
+
+          {/* Working Progress Bar Container */}
+          <div className="w-64 h-1.5 bg-gray-200/40 rounded-full mt-8 overflow-hidden relative backdrop-blur-sm">
+            {/* The Animated Striper */}
+            <div
+              className="h-full absolute left-0 top-0 w-24 animate-loading-slide rounded-full"
+              style={{
+                backgroundColor: '#063D58',
+                boxShadow: '0 0 8px rgba(6, 61, 88, 0.5)'
+              }}
+            ></div>
+          </div>
+
+          <p className="text-[10px] uppercase tracking-[0.3em] text-[#063D58] mt-6 font-bold animate-pulse">
+            Loading Platform...
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  
+
   return (
     <Router>
       <Header />
       <ProfileNotification />
-      <p>{message}</p>
+
 
       <section className="min-h-[calc(100vh-96px)]">
         <Routes>
