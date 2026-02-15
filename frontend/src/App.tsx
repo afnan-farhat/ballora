@@ -46,7 +46,7 @@ function App() {
         setMessage(data.message);
         setDataLoading(false);
       })
-      .catch((err) => {
+      .catch(() => {
         setMessage("Connection Error");
         setDataLoading(false);
       });
