@@ -11,3 +11,10 @@
     padding: 0%;
     margin:0%;
 }
+
+body, html {
+  overflow-x: auto;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}

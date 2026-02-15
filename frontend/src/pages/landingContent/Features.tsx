@@ -40,14 +40,14 @@ export default function Features() {
 
 
   // State to track which feature card is hovered
-const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   return (
     <div className="min-h-screen">
       <main className="max-w-6xl mx-auto px-6 py-8">
         {/* Header Section */}
         <div className="py-10 -mt-38 ">
-          <h1 className="text-[50px] font-bold font-petrona text-[#1E4263] text-center">
+          <h1 className="text-4xl md:text-4xl lg:text-[50px] font-bold font-petrona text-[#1E4263] text-center mb-10">
             Features
           </h1>
           <p className="text-[21px] py-5 text-gray-600 text-center">
@@ -57,7 +57,7 @@ const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-2 gap-4  justify-items-center w-[850px] mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 justify-items-center w-full mx-auto">
           {features.map((feature, index) => {
             const isHovered = hoveredIndex === index;
             const textColor =
@@ -71,7 +71,8 @@ const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
                 key={index}
                 onMouseEnter={() => setHoveredIndex(index)}
                 onMouseLeave={() => setHoveredIndex(null)}
-                className={`w-[380px] h-[200px] rounded-xl border border-[#B6B8B7] p-5 flex flex-col justify-center items-start bg-cover bg-center`}
+                className="w-full max-w-[380px] h-[220px] rounded-xl border border-[#B6B8B7] p-5 flex flex-col justify-center items-start bg-cover bg-center"
+
                 style={{
                   backgroundImage: `url(${isHovered ? feature.hoverBg : feature.bg
                     })`,

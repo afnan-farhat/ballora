@@ -274,6 +274,7 @@ export type Conversation = {
 };
 
 export type Message = {
+  content: string | undefined;
   id: string;
   senderId: string;
   type: 'text' | 'file' | 'image';

@@ -54,43 +54,40 @@ export default function Header() {
 
   return (
     <section className="relative z-50 py-0 px-0">
-      
+
       <header className="relative top-0 left-0 w-full">
         <div className="max-w-full mx-auto px-6 lg:px-12">
           <div className="flex justify-between items-center h-16">
-            
+
             <div className="flex items-center space-x-8">
               <img src="ballora_logo.png" width={"80px"} alt="Ballora Logo" />
               <nav className="bg-transparent hidden z-30 md:flex px-10 space-x-8 ">
                 <Link
                   to="/"
-                  className={`text-[16px] font-semibold ${
-                    isActive("/")
-                      ? "text-[#378692] underline underline-offset-4"
-                      : "text-black hover:text-[#33726D]"
-                  }`}
+                  className={`text-[16px] font-semibold ${isActive("/")
+                    ? "text-[#378692] underline underline-offset-4"
+                    : "text-black hover:text-[#33726D]"
+                    }`}
                 >
                   Home
                 </Link>
 
                 <Link
                   to={ideasLink}
-                  className={`text-[16px] font-semibold ${
-                    isActive(ideasLink)
-                      ? "text-[#378692] underline underline-offset-4"
-                      : "text-black hover:text-[#33726D]"
-                  }`}
+                  className={`text-[16px] font-semibold ${isActive(ideasLink)
+                    ? "text-[#378692] underline underline-offset-4"
+                    : "text-black hover:text-[#33726D]"
+                    }`}
                 >
                   Ideas
                 </Link>
 
                 <Link
                   to="/investors"
-                  className={`text-[16px] font-semibold ${
-                    isActive("/investors")
-                      ? "text-[#378692] underline underline-offset-4"
-                      : "text-black hover:text-[#33726D]"
-                  }`}
+                  className={`text-[16px] font-semibold ${isActive("/investors")
+                    ? "text-[#378692] underline underline-offset-4"
+                    : "text-black hover:text-[#33726D]"
+                    }`}
                 >
                   Investors
                 </Link>
@@ -98,11 +95,10 @@ export default function Header() {
                 {(userRole === "investor" || userRole === "idea-owner") && (
                   <Link
                     to="/chat"
-                    className={`text-[16px] font-semibold ${
-                      isActive("/chat")
-                        ? "text-[#378692] underline underline-offset-4"
-                        : "text-black hover:text-[#33726D]"
-                    }`}
+                    className={`text-[16px] font-semibold ${isActive("/chat")
+                      ? "text-[#378692] underline underline-offset-4"
+                      : "text-black hover:text-[#33726D]"
+                      }`}
                   >
                     Chat
                   </Link>
@@ -111,33 +107,33 @@ export default function Header() {
             </div>
 
             {/* Right Side (Auth / Dropdown) */}
-            <div className="flex items-center justify-center gap-3 relative z-30">
+            <div className="flex items-center justify-end gap-2 sm:gap-3 relative z-30">
               {isLoggedIn ? (
                 <UserDropdown
                   user={
                     firebaseUser
                       ? {
-                          uid: firebaseUser.uid,
-                          displayName: firebaseUser.displayName || undefined,
-                          email: firebaseUser.email || undefined,
-                          photoURL: firebaseUser.photoURL || undefined,
-                        }
+                        uid: firebaseUser.uid,
+                        displayName: firebaseUser.displayName || undefined,
+                        email: firebaseUser.email || undefined,
+                        photoURL: firebaseUser.photoURL || undefined,
+                      }
                       : null
                   }
                   onLogout={handleLogout}
-                />
-              ) : (
+                />) : (
                 <>
+                  {/* Added 'hidden xs:flex' or reduced size for mobile */}
                   <WhiteButton
                     onClick={() => navigate("/signin")}
-                    className="px-8 py-1"
+                    className="px-4 py-1 sm:px-8 w-auto min-w-[80px]" // Change: w-auto instead of fixed xl
                     size="md"
                   >
                     Sign in
                   </WhiteButton>
                   <GradientButton
                     onClick={() => navigate("/joinus")}
-                    className="px-8 py-1"
+                    className="px-4 py-1 sm:px-8 w-auto min-w-[80px]" // Change: w-auto
                     size="md"
                   >
                     Join us
@@ -145,6 +141,8 @@ export default function Header() {
                 </>
               )}
             </div>
+
+
           </div>
         </div>
       </header>

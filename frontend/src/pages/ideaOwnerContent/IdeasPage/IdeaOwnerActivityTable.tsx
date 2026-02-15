@@ -90,8 +90,9 @@ const IdeaOwnerActivityTable: React.FC<IdeaOwnerActivityTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-[8px] shadow-md border border-gray-200 overflow-hidden">
-      <table className="w-full text-left">
+   <div className="bg-white rounded-[8px] shadow-md border border-gray-200 overflow-hidden">
+  <div className="overflow-x-auto">
+    <table className="w-full text-left min-w-[600px]">
         <thead>
           <tr className="bg-gray-100 text-sm font-semibold text-gray-700 ">
             <th className="px-4 py-3">Activity Name</th>
@@ -234,6 +235,7 @@ const IdeaOwnerActivityTable: React.FC<IdeaOwnerActivityTableProps> = ({
           )}
         </tbody>
       </table>
+    </div>
     </div>
   );
 };

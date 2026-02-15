@@ -1,5 +1,5 @@
 import React from "react";
-import type { Tab } from "./Interfaces"; 
+import type { Tab } from "./Interfaces";
 
 
 
@@ -12,12 +12,12 @@ interface TabsProps {
 
 const Tabs: React.FC<TabsProps> = ({ tabs, activeTab, onTabClick }) => (
   // Tabs container with bottom border
-  <div className="flex border-b-2 border-gray-200">
+  <div className="flex border-b-2 border-gray-200 overflow-x-auto overflow-y-hidden whitespace-nowrap">
     {tabs.map((tab) => (
       <button
         key={tab.id}
         onClick={() => onTabClick(tab.id)}
-        className={`px-6 py-3 font-petrona font-semibold ${
+        className={`px-4 md:px-6 py-3 font-petrona font-semibold shrink-0 ${ // Added shrink-0
           activeTab === tab.id
             ? "text-[#33726D] border-b-2 border-[#33726D] -mb-0.5"
             : "text-gray-700 hover:text-[#33726D]"

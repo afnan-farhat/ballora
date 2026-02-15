@@ -1,4 +1,4 @@
-import  { useState } from "react";
+import { useState } from "react";
 
 /* 
  FAQSection Component:
@@ -61,7 +61,9 @@ export default function FAQSection() {
       <div className="max-w-6xl mx-auto px-4 ">
         {/* Section Title */}
         <div className="text-center -mt-28 ">
-          <h1 className="text-[50px] py-5 font-bold font-petrona text-[#1E4263] text-center mb-12">
+
+
+          <h1 className="text-3xl md:text-4xl lg:text-[50px] font-bold font-petrona text-[#1E4263] text-center mb-10">
             Frequently Asked Questions
           </h1>
         </div>
@@ -76,9 +78,8 @@ export default function FAQSection() {
               return (
                 <div
                   key={actualIndex}
-                  className="bg-white w-[535px] h-auto rounded-lg shadow-md"
+                  className="bg-white w-full max-w-[535px] h-auto rounded-lg shadow-md mx-auto"
                 >
-
                   {/* Question Button */}
                   <button
                     onClick={() => toggleItem(actualIndex)}
@@ -124,8 +125,8 @@ export default function FAQSection() {
 
                   {/* Answer Section */}
                   {isOpen && (
-                    <div className="px-20 pb-4">
-                      <p className="text-gray-600 text-m leading-relaxed">
+                    <div className="px-6 md:px-20 pb-4">
+                      <p className="text-gray-600 text-sm leading-relaxed">
                         {faq.answer}
                       </p>
                     </div>
@@ -143,7 +144,7 @@ export default function FAQSection() {
               return (
                 <div
                   key={actualIndex}
-                  className="bg-white w-[535px] h-auto rounded-lg shadow-md"
+                  className="bg-white w-full max-w-[535px] h-auto rounded-lg shadow-md mx-auto"
                 >
                   <button
                     onClick={() => toggleItem(actualIndex)}
@@ -187,7 +188,7 @@ export default function FAQSection() {
                     </span>
                   </button>
                   {isOpen && (
-                    <div className="px-20 pb-4">
+                    <div className="px-6 md:px-20 pb-4">
                       <p className="text-gray-600 text-sm leading-relaxed">
                         {faq.answer}
                       </p>

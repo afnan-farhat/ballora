@@ -33,6 +33,8 @@ const TeamTable: React.FC<TeamTableProps> = ({ teamMembers }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+        <div className="overflow-x-auto">
+
       <table className="w-full text-left">
         
         {/* Render table header */}
@@ -71,6 +73,7 @@ const TeamTable: React.FC<TeamTableProps> = ({ teamMembers }) => {
           ))}
         </tbody>
       </table>
+    </div>
     </div>
   );
 };

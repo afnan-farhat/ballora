@@ -26,7 +26,7 @@ const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
       iconLeft,
       iconRight,
       onClick,
-      disabled = false, 
+      disabled = false,
       title,
       type = "button",
     },
@@ -37,7 +37,8 @@ const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
       md: "w-32 h-8 text-[14px]",
       mid: "w-32 h-10 text-[14px]",
       lg: "w-40 h-8 text-[14px]",
-      xl: "w-40 h-10 text-[16px]",
+      xl: "w-36 md:w-40 h-10 text-[16px]",
+      // xl: "w-full md:w-40 h-10 text-[16px]",
     };
 
     return (
@@ -46,7 +47,7 @@ const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
         ref={ref}
         type={type}
         onClick={disabled ? undefined : onClick}
-        title={title} 
+        title={title}
         className={clsx(
           "text-white rounded-[8px] font-semibold flex items-center justify-center gap-1 transition-colors duration-200",
           sizeClasses[size],

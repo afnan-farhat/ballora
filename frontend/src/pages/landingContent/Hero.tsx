@@ -71,21 +71,21 @@ export default function Hero() {
 
         {/* Hero Content */}
         <div className="relative z-10 flex items-center justify-center min-h-screen px-6 lg:px-18">
-          <div className="max-w-4xl text-center">
-            <h1 className="text-4xl md:text-5xl lg:text-[52px] font-medium font-petrona text-[#2D4E6D] leading-tight mb-10 -mt-28">
+          <div className="max-w-4xl text-center flex flex-col items-center">
+            <h1 className="text-3xl md:text-5xl lg:text-[52px] font-medium font-petrona text-[#2D4E6D] leading-tight mb-10 -mt-10 md:-mt-28">
               Turn your Idea into Reality with{" "}
-              <span className="font-bold bg-gradient-to-r from-[#3D6A89] to-[#5AB3B6] bg-clip-text text-transparent">
+              <span className="block mt-4 md:inline">
                 {/* Ballora */}
                 <img
                   src="/ballora_logo_darkBlue.png"
                   alt="Ballora"
-                  className="inline-block w-80 h-auto -mt-2"
+                  className="inline-block w-48 md:w-80 h-auto"
                 />
               </span>
             </h1>
             <GradientButton
               size="xl"
-              className="mb-10 ml-90"
+              className="mb-10" 
               onClick={handleDiscover}
             >
               Discover →

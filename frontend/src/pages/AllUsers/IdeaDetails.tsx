@@ -349,8 +349,8 @@ const IdeaDetails: React.FC<DetailsInvestorProps> = ({ userRole }) => {
                 | { name: string; size?: string; url: string }
                 | undefined
               }
-            />          
-            </>
+            />
+          </>
         );
 
       case "team":
@@ -378,9 +378,10 @@ const IdeaDetails: React.FC<DetailsInvestorProps> = ({ userRole }) => {
     }
   };
 
-  return (
+ return (
     <div className="min-h-screen bg-white">
-      <div className="max-w-6xl mx-auto px-8 py-8">
+      {/* Reduced padding for mobile */}
+      <div className="max-w-6xl mx-auto px-4 sm:px-8 py-6 md:py-8">
         {!ideaInfo ? (
           <div className="text-center text-gray-400 py-12 text-lg">
             Loading idea details...
@@ -388,21 +389,27 @@ const IdeaDetails: React.FC<DetailsInvestorProps> = ({ userRole }) => {
         ) : (
           <>
             <div className="mb-4">
-              <div className="flex justify-between items-start mb-8">
-                <h1 className="text-[44px] -mt-1 font-petrona font-bold text-[#1E4263]">
+              {/* Changed to flex-col for mobile, flex-row for desktop */}
+              <div className="flex flex-col lg:flex-row lg:justify-between lg:items-start mb-6 md:mb-8 gap-4">
+                <h1 className="text-2xl sm:text-3xl md:text-[44px] font-petrona font-bold text-[#1E4263] leading-tight">
                   {tabs.find((tab) => tab.id === activeTab)?.label}
                 </h1>
-                {/* Tabs component */}
-                <Tabs
-                  tabs={tabs}
-                  activeTab={activeTab}
-                  onTabClick={handleTabClick}
-                />
+                
+                {/* Scrollable Tabs wrapper for mobile */}
+                <div className="overflow-x-auto pb-2 -mx-4 px-4 lg:mx-0 lg:px-0">
+                  <div className="min-w-max">
+                    <Tabs
+                      tabs={tabs}
+                      activeTab={activeTab}
+                      onTabClick={handleTabClick}
+                    />
+                  </div>
+                </div>
               </div>
 
-              {/* Show team member count if on team tab */}
+              {/* Responsive alignment for member count */}
               {activeTab === "team" && teamMembers.length > 0 && (
-                <div className="flex justify-end mb-0">
+                <div className="flex justify-start lg:justify-end mb-4">
                   <div className="px-4 py-1.5 rounded-[8px] border-2 border-[#DCF0ED] bg-[#DCF0ED] text-[#1E4263] font-medium text-sm">
                     {teamMembers.length}{" "}
                     {teamMembers.length === 1 ? "Member" : "Members"}
@@ -410,7 +417,10 @@ const IdeaDetails: React.FC<DetailsInvestorProps> = ({ userRole }) => {
                 </div>
               )}
             </div>
-            {renderTabContent()}
+            {/* Added a wrapper to ensure content fits screen */}
+            <div className="w-full overflow-hidden">
+              {renderTabContent()}
+            </div>
           </>
         )}
       </div>

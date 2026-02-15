@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { db, auth } from "../../firebase";
-import { collection, query, where, getDocs,doc, updateDoc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs, doc, updateDoc, getDoc } from "firebase/firestore";
 
 import WhiteButton from "../../component/WhiteButton";
 import GradientButton from "../../component/GradientButton";
@@ -113,10 +113,10 @@ export default function Idea() {
             activities: [],
             logoText: data.ideaName
               ? data.ideaName
-                  .split(" ")
-                  .slice(0, 2)
-                  .map((word: string) => word.charAt(0).toUpperCase())
-                  .join("")
+                .split(" ")
+                .slice(0, 2)
+                .map((word: string) => word.charAt(0).toUpperCase())
+                .join("")
               : "I",
             logoColor: data.logoColor || "bg-gray-300",
           };
@@ -136,7 +136,7 @@ export default function Idea() {
   }, [userId, userRole]); // Dependencies to re-fetch when role or ID changes
 
 
-  
+
   // Memoized list of ideas after applying filters (categories and admin states)
   const filteredIdeas = useMemo<IdeaType[]>(() => {
     let filtered = ideas;
@@ -237,83 +237,88 @@ export default function Idea() {
     },
   ];
 
-  
-return (
+
+  return (
     <section className="relative">
-      <div className="max-w-6xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between">
-          <h1 className="text-[44px] -mt-1 font-petrona font-bold text-[#1E4263] mb-6">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
+          <h1 className="text-3xl md:text-[44px] font-petrona font-bold text-[#1E4263]">
             Ideas
           </h1>
-          <div className="flex items-center space-x-5">
+          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
             {/* Admin Tabs for state filtering */}
             {userRole === "admin" && (
-              <div className="flex border-b border-gray-300 mb-8">
-                {["All", "Waiting", "Incubation", "Ready To Invest"].map(
-                  (tab) => {
-                    const isActive =
-                      tab === "All"
-                        ? appliedStates.length === 0
-                        : appliedStates.includes(tab);
-                    return (
-                      <button
-                        key={tab}
-                        onClick={() => {
-                          if (tab === "All") setAppliedStates([]);
-                          else setAppliedStates([tab]);
-                        }}
-                        className={`px-5 py-3 text-sm font-medium -mb-px border-b-2 transition-colors ${
-                          isActive
+              <div className="w-full md:w-auto overflow-x-auto border-b border-gray-300">
+                <div className="flex min-w-max">
+                  {["All", "Waiting", "Incubation", "Ready To Invest"].map(
+                    (tab) => {
+                      const isActive =
+                        tab === "All"
+                          ? appliedStates.length === 0
+                          : appliedStates.includes(tab);
+                      return (
+                        <button
+                          key={tab}
+                          onClick={() => {
+                            if (tab === "All") setAppliedStates([]);
+                            else setAppliedStates([tab]);
+                          }}
+                          className={`px-5 py-3 text-sm font-medium -mb-px border-b-2 transition-colors ${isActive
                             ? "border-[#1F7E90] text-[#1F7E90] font-semibold"
                             : "border-transparent text-gray-600 hover:text-gray-900"
-                        }`}
-                      >
-                        {tab}{" "}
-                        {tab !== "All" && tab === "Waiting" ? "state" : ""}
-                      </button>
-                    );
-                  }
-                )}
+                            }`}
+                        >
+                          {tab}{" "}
+                          {tab !== "All" && tab === "Waiting" ? "state" : ""}
+                        </button>
+                      );
+                    }
+                  )}
+                </div>
               </div>
             )}
 
             {/* Investor Filter Button */}
-            {userRole == "investor" && (
-              <button
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-                onClick={() => setShowFilterDropdown(true)}
-              >
-                <Filter className="w-6 h-6 scale-x-[-1] text-[#1F7E90]" />
-              </button>
-            )}
+            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
+              {userRole == "investor" && (
+                <button
+                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                  onClick={() => setShowFilterDropdown(true)}
+                >
+                  <Filter className="w-6 h-6 scale-x-[-1] text-[#1F7E90]" />
+                </button>
+              )}
 
-            {/* Investor Subscription Button */}
-            {userRole === "investor" && (
-              <GradientButton
-                className="!py-6.5 w-63"
-                disabled={isLoadingUser || isPremiumUser}
-                onClick={() => !isPremiumUser && setShowSubscriptionModal(true)}
-              >
-                <span className="flex items-center gap-2">
-                  {isLoadingUser
-                    ? "Already Premium"
-                    : isPremiumUser
-                    ? "Already Premium"
-                    : "Upgrade subscription"}
-                  <Gem className="w-5 h-5" />
-                </span>
-              </GradientButton>
-            )}
+              {/* Investor Subscription Button */}
+              {userRole === "investor" && (
+                <GradientButton
+                  className="!py-3 px-4 flex-1 sm:flex-none"
+                  disabled={isLoadingUser || isPremiumUser}
+                  onClick={() => !isPremiumUser && setShowSubscriptionModal(true)}
+                >
+                  <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+                    {isLoadingUser
+                      ? "Already Premium"
+                      : isPremiumUser
+                        ? "Already Premium"
+                        : "Upgrade subscription"}
+                    <Gem className="w-5 h-5" />
+                  </span>
+                </GradientButton>
+              )}
 
-            {/* Idea Owner: Add Idea Button */}
-            {userRole === "idea-owner" && (
-              <GradientButton size="mid" onClick={() => navigate("/IdeaForm")}>
-                <span className="flex items-center gap-2">
-                  Add Idea
-                  <Plus className="w-5 h-5" />
-                </span>
-              </GradientButton>
-            )}
+              {/* Idea Owner: Add Idea Button */}
+              {userRole === "idea-owner" && (
+                <div className="w-full sm:w-32 md:w-32 ">
+                  <GradientButton size="mid" className="w-full lg:w-32 mid:w-32 !py-3" onClick={() => navigate("/IdeaForm")}>
+                    <span className="flex items-center justify-center gap-2">
+                      Add Idea
+                      <Plus className="w-5 h-5" />
+                    </span>
+                  </GradientButton>
+                </div>
+              )}
+            </div>
           </div>
         </div>
         {/* Ideas list (Rendered ideas based on current filters) */}{" "}
@@ -321,13 +326,13 @@ return (
           {(showAll ? filteredIdeas : filteredIdeas.slice(0, 5)).map((idea) => (
             <div
               key={idea.id}
-              className="bg-white rounded-lg p-6 shadow-sm shadow-[#7C838A] w-full h-60"
-            >
-              <div className="flex justify-between">
-                <div className="flex items-start space-x-4 flex-1">
+              className="bg-white rounded-lg p-6 shadow-sm shadow-[#7C838A] w-full min-h-[240px] flex flex-col justify-between"            >
+
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div className="flex flex-col sm:flex-row items-start space-y-4 sm:space-y-0 sm:space-x-4 flex-1">
                   {/* Idea Logo */}
                   <div
-                    className={`w-35 h-35 ${idea.logoColor} rounded-lg flex items-center justify-center text-gray-400 font-bold text-base flex-shrink-0 overflow-hidden`}
+                    className={`w-24 h-24 sm:w-32 sm:h-32 ${idea.logoColor} rounded-lg flex items-center justify-center text-gray-400 font-bold text-base flex-shrink-0 overflow-hidden`}
                   >
                     {idea.ideaImageUrl ? (
                       <img
@@ -341,30 +346,26 @@ return (
                   </div>
 
                   <div className="flex-1">
-                    <div className="flex items-center space-x-4 mb-2">
-                      <h3 className="mx-0.5 text-xl font-bold text-gray-900">
+                    <div className="flex-1 min-w-0"> {/* min-w-0 helps with text truncation in flex */}
+                      <h3 className="text-xl font-bold text-gray-900 truncate">
                         {idea.ideaName || "No Name Found"}
                       </h3>{" "}
                     </div>
                     {/* Idea Metadata */}
-                    <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-2">
-                      <div className="flex items-center text-m">
-                        <div
-                          className={`w-2.5 h-2.5 rounded-full ${getStateColor(
-                            idea.state
-                          )}`}
-                        ></div>
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+                      <div className="flex items-center">
+                        <div className={`w-2.5 h-2.5 rounded-full ${getStateColor(idea.state)}`}></div>
                         <b className="ml-2">State:&nbsp;</b>
                         <span>{idea.state}</span>
                       </div>
 
-                      <div className="flex items-center text-m">
+                      <div className="flex items-center">
                         <div className="w-2.5 h-2.5 bg-[#248D9D] rounded-full"></div>
                         <b className="ml-2">Idea level:&nbsp;</b>
                         <span>{idea.readinessLevel}</span>
                       </div>
 
-                      <div className="flex items-center text-m">
+                      <div className="flex items-center">
                         <div className="w-2.5 h-2.5 bg-[#2B5C7E] rounded-full"></div>
                         <b className="ml-2">Fields:&nbsp;</b>
                         <span>
@@ -375,16 +376,17 @@ return (
                       </div>
                     </div>
 
-                    <p className="text-gray-600 text-[18px] leading-relaxed mt-2 ">
+                    <p className="text-gray-600 text-sm md:text-base leading-relaxed mt-3 line-clamp-2 md:line-clamp-3">
                       {idea.description}
                     </p>
                   </div>
                 </div>
                 {/* Details Button */}
-                <div className="flex space-x-3 ml-6 mt-35">
+                <div className="flex sm:flex-col justify-end items-end mt-4 sm:mt-0">
                   <WhiteButton
                     size="mid"
                     onClick={() => handleDetailsClick(idea.id, idea.state)}
+                    className="whitespace-nowrap"
                   >
                     Details
                   </WhiteButton>

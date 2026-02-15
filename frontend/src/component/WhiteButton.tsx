@@ -22,10 +22,10 @@ export default function WhiteButton({
   // Define width, height, and text size for each button size
   const sizeClasses = {
     sm: "w-24 h-6 text-[10px]",
-    md: "w-30 h-8 text-[14px]",
-    mid: "w-30 h-10 text-[14px]",
+    md: "w-32 h-8 text-[14px]",
+    mid: "w-32 h-10 text-[14px]",
     lg: "w-40 h-8 text-[14px]",
-    xl: "w-40 h-10 text-[16px]",
+    xl: "w-36 md:w-40 h-10 text-[16px]",
   };
 
   return (

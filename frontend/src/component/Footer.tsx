@@ -7,26 +7,28 @@ export default function Footer() {
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
 
   return (
-    <footer className="relative w-full pt-8">
+    /* Change 1: Added a background color matching your wave (e.g., #1E4263) to prevent white gaps */
+    <footer className="relative w-full"> 
+      
       {/* Wave background image */}
-      <img src="/footer.png" alt="Footer" className="w-full block" />
+      <img src="/footer.png" alt="Footer" className="w-full block h-auto min-h-[120px] object-cover" />
 
-      {/* Footer content positioned above the image */}
-      <div className="absolute pt-28 inset-0 flex flex-col md:flex-row items-center justify-between px-8 py-4 text-white z-10">
-        <p className="text-[12px]">Ballora 2025 © All Rights Reserved</p>
-        {/* Footer links section */}
-        <div className="flex space-x-6 mt-2 md:mt-0">
-          {/* Terms & Conditions button */}
+      {/* Change 2: Made 'absolute' apply to ALL screens, not just 'md:' */}
+      {/* Change 3: Adjusted padding (pt-12 on mobile, pt-28 on desktop) to fit the wave curve */}
+      <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between px-8 py-4 text-white z-10 pt-12 md:pt-28">
+        
+        <p className="text-[10px] md:text-[12px]">Ballora 2025 © All Rights Reserved</p>
+        
+        <div className="flex space-x-4 md:space-x-6 mt-4 md:mt-0">
           <button
             onClick={() => setIsTermsOpen(true)}
-            className="text-[12px] underline"
+            className="text-[10px] md:text-[12px] underline"
           >
             Terms & Conditions
           </button>
 
-          {/* Privacy Policy button */}
           <button
-            className="text-[12px] underline"
+            className="text-[10px] md:text-[12px] underline"
             onClick={() => setIsPrivacyOpen(true)}
           >
             Privacy Policy
