@@ -85,7 +85,7 @@ client = genai.Client(api_key=API_KEY)
 SIM_THRESHOLD = 0.82
 
 # ============= Utility Functions =============
-async def embed_text(text: str) -> np.ndarray:
+def embed_text(text: str) -> np.ndarray:
     if not text or not text.strip():
         text = " "
     # Fix 1: Removed leading slash from model name
@@ -95,13 +95,13 @@ async def embed_text(text: str) -> np.ndarray:
     )
     return np.array(result.embeddings[0].values)
 
-async def cosine(a, b) -> float:
+def cosine(a, b) -> float:
     num = float((a * b).sum())
     da = math.sqrt(float((a * a).sum()))
     db = math.sqrt(float((b * b).sum()))
     return 0.0 if da == 0 or db == 0 else num / (da * db)
 
-async def unified_repr(problem: Optional[str], solution: Optional[str], fields: List[str], advantage: Optional[str]) -> str:
+def unified_repr(problem: Optional[str], solution: Optional[str], fields: List[str], advantage: Optional[str]) -> str:
     problem = problem or ""
     solution = solution or ""
     advantage = advantage or ""
@@ -122,7 +122,7 @@ def is_gibberish(text: Optional[str]) -> bool:
         return True
     return False
 
-async def is_valid_language(text: Optional[str]) -> bool:
+def is_valid_language(text: Optional[str]) -> bool:
     if not text or len(text.strip()) < 5:
         return False
     try:
@@ -132,7 +132,7 @@ async def is_valid_language(text: Optional[str]) -> bool:
     except LangDetectException:
         return False
 
-async def is_coherent(text: Optional[str]) -> bool:
+def is_coherent(text: Optional[str]) -> bool:
     if not text or len(text.strip()) < 10:
         return False
     try:
@@ -150,7 +150,7 @@ async def is_coherent(text: Optional[str]) -> bool:
         logger.warning(f"Error checking coherence: {e}")
         return True 
 
-async def is_problem_solution_related(problem: Optional[str], solution: Optional[str]) -> bool:
+def is_problem_solution_related(problem: Optional[str], solution: Optional[str]) -> bool:
     if not problem or not solution:
         return True 
     try:
@@ -162,11 +162,11 @@ async def is_problem_solution_related(problem: Optional[str], solution: Optional
         logger.warning(f"Error checking problem-solution relation: {e}")
         return True 
 
-async def safe_json_loads(text: str) -> dict:
+def safe_json_loads(text: str) -> dict:
     text = text.strip().strip("```json").strip("```").strip()
     return json.loads(text)
 
-async def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
+def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
     if not existing_ideas:
         return False, 0.0, None
     new_vec = embed_text(unified_repr(new_idea.problem, new_idea.solution, new_idea.fields, new_idea.advantages))
@@ -255,7 +255,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
     raise Exception("Failed to generate BMC after 3 attempts due to API limits.")
 
 
-async def generate_summary_with_gemini(problem: str, solution: str) -> str:
+def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
