@@ -18,7 +18,7 @@ export default function LandingPage() {
         <Features />
       </div>
 
-      <div className="mt-32 md:mt-0"></div>
+      <div className="mt-32 md:mt-32"></div>
 
       {/* Frequently Asked Questions Section */}
       <div className="relative z-10">
