@@ -100,7 +100,7 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
               {userRole === "admin" ? (
                 // Fixed admin image
                 <img
-                  src="/ballora_icon_colorful.png"  
+                  src="/ballora_icon_colorful.png"
                   alt="Admin"
                   className="w-full h-full rounded-full object-cover"
                 />
@@ -125,14 +125,15 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
           </div>
 
           {/* Render action buttons */}
-          <div className="p-4 space-y-2">
+          <div className="p-4 w-full flex flex-col items-center space-y-3">
             {(userRole === "idea-owner" || userRole === "investor") && (
               <WhiteButton
                 onClick={() => {
                   setIsDropdownOpen(false);
                   navigate("/Profile");
                 }}
-                className="w-full px-4 py-2"
+                /* w-full ensures it matches the container width on all devices */
+                className="w-full px-4 py-2.5 md:py-3"
               >
                 Edit Profile
               </WhiteButton>
@@ -143,11 +144,11 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
                 setIsDropdownOpen(false);
                 onLogout();
               }}
-              className="w-full !px-0.5 !py-1"
+              /* w-full ensures it matches the container width and the button above */
+              className="w-full py-2.5 md:py-3"
               iconRight={
-                // Default user icon if no profile picture
                 <svg
-                  className="w-4 h-4"
+                  className="w-4 h-4 md:w-5 md:h-5"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -161,7 +162,7 @@ export default function UserDropdown({ user, onLogout }: UserDropdownProps) {
                 </svg>
               }
             >
-              Log Out
+              <span className="text-sm md:text-base">Log Out</span>
             </GradientButton>
           </div>
         </div>

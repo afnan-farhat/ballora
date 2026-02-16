@@ -93,11 +93,11 @@ const OverviewCard: React.FC<OverviewCardProps> = ({
   return (
     <div>
       {/* ---------------- TOP SECTION: Idea Overview ---------------- */}
-      <div className="mb-8 flex justify-between items-start flex-wrap">
-        <div className="flex flex-1 items-start space-x-6 min-w-0">
+      <div className="mb-6 flex flex-col md:flex-row justify-between items-start gap-6">
+        <div className="flex flex-1 items-start space-x-4 md:space-x-6 min-w-0 w-full">
 
           {/* Idea Logo */}
-          <div className="w-[130px] h-[130px] border border-[#7C838A] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="w-24 h-24 md:w-[130px] md:h-[130px] border border-[#7C838A] rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
             {ideaInfo.logoText ? (
               <img
                 src={ideaInfo.logoText}
@@ -105,13 +105,13 @@ const OverviewCard: React.FC<OverviewCardProps> = ({
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="text-gray-400 text-sm">No Logo</div>
+              <div className="text-gray-400 text-xs md:text-sm text-center px-1">No Logo</div>
             )}
           </div>
 
           {/* Idea Name + Metadata */}
-          <div className="pt-2 flex-1 min-w-0">
-            <h2 className="text-3xl font-bold text-gray-900 mb-6 font-petrona truncate">
+          <div className="pt-1 flex-1 min-w-0">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4 font-petrona truncate">
               {ideaInfo.ideaName}
             </h2>
 
@@ -152,8 +152,10 @@ const OverviewCard: React.FC<OverviewCardProps> = ({
         </div>
 
         {/* Button that opens the Business Model modal */}
-        <div className="pt-2 flex-shrink-0">
+        <div className="flex-shrink-0 justify-right">
           <GradientButton
+            size="lg"
+            className="!py-2 !px-4 text-sm"
             iconRight={<Eye className="w-4 h-4" />}
             onClick={openModal}
           >
@@ -163,9 +165,10 @@ const OverviewCard: React.FC<OverviewCardProps> = ({
       </div>
 
       {/* ---------------- DESCRIPTION SECTION ---------------- */}
-      <div>
+      <div className="mt-4">
+        <h4 className="text-lg font-bold text-gray-900 mb-2">Summary</h4>
         {ideaInfo.description ? (
-          <p className="text-gray-700 leading-relaxed max-w-3xl">
+          <p className="text-gray-700 leading-relaxed max-w-4xl text-sm md:text-base">
             {ideaInfo.description}
           </p>
         ) : (

@@ -241,86 +241,77 @@ export default function Idea() {
   return (
     <section className="relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 md:mb-8">
-          <h1 className="text-3xl md:text-[44px] font-petrona font-bold text-[#1E4263]">
+        {/* TOP ROW: Title and Add Idea Button */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 font-petrona">
             Ideas
           </h1>
-          <div className="flex flex-wrap items-center gap-3 sm:gap-5">
-            {/* Admin Tabs for state filtering */}
-            {userRole === "admin" && (
-              <div className="w-full md:w-auto overflow-x-auto border-b border-gray-300">
-                <div className="flex min-w-max">
-                  {["All", "Waiting", "Incubation", "Ready To Invest"].map(
-                    (tab) => {
-                      const isActive =
-                        tab === "All"
-                          ? appliedStates.length === 0
-                          : appliedStates.includes(tab);
-                      return (
-                        <button
-                          key={tab}
-                          onClick={() => {
-                            if (tab === "All") setAppliedStates([]);
-                            else setAppliedStates([tab]);
-                          }}
-                          className={`px-5 py-3 text-sm font-medium -mb-px border-b-2 transition-colors ${isActive
-                            ? "border-[#1F7E90] text-[#1F7E90] font-semibold"
-                            : "border-transparent text-gray-600 hover:text-gray-900"
-                            }`}
-                        >
-                          {tab}{" "}
-                          {tab !== "All" && tab === "Waiting" ? "state" : ""}
-                        </button>
-                      );
-                    }
-                  )}
-                </div>
+
+          {userRole === "idea-owner" && (
+            <GradientButton
+              size="mid"
+              className="w-32 md:w-40 !py-2 md:!py-3"
+              onClick={() => navigate("/IdeaForm")}
+            >
+              <span className="flex items-center justify-center gap-2 text-sm md:text-base">
+                Add Idea
+                <Plus className="w-4 h-4 md:w-5 md:h-5" />
+              </span>
+            </GradientButton>
+          )}
+
+          {/* BOTTOM ROW: Filters (Admin Tabs / Investor Controls) */}
+          {/* Admin Tabs */}
+          {userRole === "admin" && (
+            <div className="w-full md:w-auto overflow-x-auto overflow-y-hidden border-b border-gray-200">
+              <div className="flex min-w-max">
+                {["All", "Waiting", "Incubation", "Ready To Invest"].map((tab) => {
+                  const isActive = tab === "All" ? appliedStates.length === 0 : appliedStates.includes(tab);
+                  return (
+                    <button
+                      key={tab}
+                      onClick={() => {
+                        if (tab === "All") setAppliedStates([]);
+                        else setAppliedStates([tab]);
+                      }}
+                      className={`px-4 sm:px-5 py-2 text-xs font-medium -mb-px border-b-2 transition-colors whitespace-nowrap                           ${isActive
+                        ? "border-[#1F7E90] text-[#1F7E90] font-semibold"
+                        : "border-transparent text-gray-600 hover:text-gray-900"
+                        }`}
+                    >
+                      {tab} {tab !== "All" && tab === "Waiting" ? "state" : ""}
+                    </button>
+                  );
+                })}
               </div>
-            )}
-
-            {/* Investor Filter Button */}
-            <div className="flex items-center gap-3 w-full sm:w-auto justify-between sm:justify-end">
-              {userRole == "investor" && (
-                <button
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
-                  onClick={() => setShowFilterDropdown(true)}
-                >
-                  <Filter className="w-6 h-6 scale-x-[-1] text-[#1F7E90]" />
-                </button>
-              )}
-
-              {/* Investor Subscription Button */}
-              {userRole === "investor" && (
-                <GradientButton
-                  className="!py-3 px-4 flex-1 sm:flex-none"
-                  disabled={isLoadingUser || isPremiumUser}
-                  onClick={() => !isPremiumUser && setShowSubscriptionModal(true)}
-                >
-                  <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
-                    {isLoadingUser
-                      ? "Already Premium"
-                      : isPremiumUser
-                        ? "Already Premium"
-                        : "Upgrade subscription"}
-                    <Gem className="w-5 h-5" />
-                  </span>
-                </GradientButton>
-              )}
-
-              {/* Idea Owner: Add Idea Button */}
-              {userRole === "idea-owner" && (
-                <div className="w-full sm:w-32 md:w-32 ">
-                  <GradientButton size="mid" className="w-full lg:w-32 mid:w-32 !py-3" onClick={() => navigate("/IdeaForm")}>
-                    <span className="flex items-center justify-center gap-2">
-                      Add Idea
-                      <Plus className="w-5 h-5" />
-                    </span>
-                  </GradientButton>
-                </div>
-              )}
             </div>
-          </div>
+          )}
+
+          {/* Investor Controls */}
+          {(userRole === "investor") && (
+            <div className="flex items-center gap-3 w-full md:w-auto justify-end">
+              <button
+                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900"
+                onClick={() => setShowFilterDropdown(true)}
+              >
+                <Filter className="w-6 h-6 scale-x-[-1] text-[#1F7E90]" />
+              </button>
+
+              <GradientButton
+                className="!py-2 md:!py-3 px-4 w-auto"
+                disabled={isLoadingUser || isPremiumUser}
+                onClick={() => !isPremiumUser && setShowSubscriptionModal(true)}
+              >
+                <span className="flex items-center justify-center gap-2 text-sm whitespace-nowrap">
+                  {isLoadingUser || isPremiumUser ? "Already Premium" : "Upgrade subscription"}
+                  <Gem className="w-5 h-5" />
+                </span>
+              </GradientButton>
+            </div>
+          )}
         </div>
+
+        {/* Ideas list starts here... */}
         {/* Ideas list (Rendered ideas based on current filters) */}{" "}
         <div className="space-y-6">
           {(showAll ? filteredIdeas : filteredIdeas.slice(0, 5)).map((idea) => (

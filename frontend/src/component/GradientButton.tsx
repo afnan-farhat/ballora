@@ -36,7 +36,7 @@ const GradientButton = forwardRef<HTMLButtonElement, GradientButtonProps>(
       sm: "w-24 h-6 text-[10px]",
       md: "w-32 h-8 text-[14px]",
       mid: "w-32 h-10 text-[14px]",
-      lg: "w-40 h-8 text-[14px]",
+      lg: "w-40 h-10 text-[14px]",
       xl: "w-36 md:w-40 h-10 text-[16px]",
       // xl: "w-full md:w-40 h-10 text-[16px]",
     };
