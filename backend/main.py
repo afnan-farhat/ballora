@@ -30,14 +30,14 @@ class Idea(BaseModel):
     fields: Optional[List[str]] = Field(default_factory=list, description="Industry/domain fields")
 
     @validator('problem', 'solution', 'advantages', pre=True, always=True)
-    async def clean_text_fields(cls, v):
+    def clean_text_fields(cls, v):
         if isinstance(v, str):
             v = v.strip()
             return v if v else None
         return v
 
     @validator('fields', pre=True, always=True)
-    async def clean_fields(cls, v):
+    def clean_fields(cls, v):
         if v is None:
             return []
         if isinstance(v, str):
@@ -108,7 +108,7 @@ async def unified_repr(problem: Optional[str], solution: Optional[str], fields: 
     fields_text = ", ".join(fields) if fields else ""
     return f"Problem: {problem} | Solution: {solution} | fields: {fields_text} | Advantage: {advantage}"
 
-async def is_gibberish(text: Optional[str]) -> bool:
+def is_gibberish(text: Optional[str]) -> bool:
     if not text or len(text.strip()) < 10:
         return True
     cleaned = re.sub(r'[^A-Za-zء-ي]+', '', text)
