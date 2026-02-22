@@ -90,7 +90,7 @@ def embed_text(text: str) -> np.ndarray:
         text = " "
     # Fix 1: Removed leading slash from model name
     result = client.models.embed_content(
-        model="gemini-embedding-001",
+        model="gemini-embedding-004",
         contents=text
     )
     return np.array(result.embeddings[0].values)
@@ -227,7 +227,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
         try:
             # Using 1.5-flash as it is more stable for free tier quotas
             resp = client.models.generate_content(
-                model="gemini-2.5-flash", 
+                model="gemini-2.0-flash", 
                 contents=prompt,
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
@@ -259,7 +259,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -274,7 +274,7 @@ async  def generate_improvement_tips_with_gemini(problem: str, solution: str, uv
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-2.0-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
