@@ -90,7 +90,7 @@ def embed_text(text: str) -> np.ndarray:
         text = " "
     # Fix 1: Removed leading slash from model name
     result = client.models.embed_content(
-        model="gemini-embedding-004",
+        model="gemini-embedding-001",
         contents=text
     )
     return np.array(result.embeddings[0].values)
@@ -166,23 +166,24 @@ def safe_json_loads(text: str) -> dict:
     text = text.strip().strip("```json").strip("```").strip()
     return json.loads(text)
 
-def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
+def is_similar_optimized(new_vec: np.ndarray, existing_ideas: List[dict]) -> tuple:
     if not existing_ideas:
         return False, 0.0, None
-    new_vec = embed_text(unified_repr(new_idea.problem, new_idea.solution, new_idea.fields, new_idea.advantages))
-    best_score, best_idea = -1.0, None
+    
+    best_score = -1.0
+    best_name = "Unknown"
+
     for idea_data in existing_ideas:
-        try:
-            idea_fields = {k: v for k, v in idea_data.items() if k in Idea.model_fields}
-            idea = Idea(**idea_fields)
-            old_vec = embed_text(unified_repr(idea.problem, idea.solution, idea.fields, idea.advantages))
+        # Check if we already have the embedding saved
+        if "embedding" in idea_data:
+            old_vec = np.array(idea_data["embedding"])
             score = cosine(new_vec, old_vec)
+            
             if score > best_score:
-                best_score, best_idea = score, idea
-        except Exception as e:
-            logger.warning(f"Error processing idea for similarity check: {e}")
-            continue
-    return best_score >= SIM_THRESHOLD, best_score, best_idea
+                best_score = score
+                best_name = idea_data.get("ideaName", "Unknown")
+
+    return (best_score >= SIM_THRESHOLD), best_score, best_name
 
 # ============= Gemini AI Schemas =============
 BMC_SCHEMA = {
@@ -255,7 +256,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
     raise Exception("Failed to generate BMC after 3 attempts due to API limits.")
 
 
-def generate_summary_with_gemini(problem: str, solution: str) -> str:
+async  def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
@@ -297,8 +298,12 @@ async  def get_ideas():
     return {"ideas": memory_db["ideas"]}
 
 @app.post("/ideas")
-async  def add_idea(idea: Idea):
+async def add_idea(idea: Idea):
     try:
+        # 1. Generate Embedding FIRST (used for similarity and storage)
+        new_idea_string = unified_repr(idea.problem, idea.solution, idea.fields, idea.advantages)
+        new_vec = embed_text(new_idea_string)
+
         errors = {}
         # content validation logic
         if idea.problem:
@@ -316,27 +321,50 @@ async  def add_idea(idea: Idea):
             # To allow submission anyway, comment out the return below
             return {"status": "invalid", "errors": errors}
 
-        similar, score, match = is_similar(idea, memory_db["ideas"])
+        # 2. Optimized Similarity Check (Using stored embeddings)
+        similar, score, match_name = is_similar_optimized(new_vec, memory_db["ideas"])
+        
         if similar:
-            tips = generate_improvement_tips_with_gemini(
-                idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields,
-                match.ideaName if match else "Unknown Idea", score, idea.readinessLevel
+            # We only call Gemini if it's a match to get tips
+            tips = await generate_improvement_tips_with_gemini(
+                idea.problem or "", idea.solution or "", idea.advantages or "", 
+                idea.fields, match_name, score, idea.readinessLevel
             )
-            return {"status": "rejected", "similarity_score": round(score, 3), "nearest_match": match.ideaName if match else "Unknown", "improvement_tips": tips}
+            return {
+                "status": "rejected", 
+                "similarity_score": round(score, 3), 
+                "nearest_match": match_name, 
+                "improvement_tips": tips
+            }
 
-        bmc_result = generate_bmc_with_gemini(idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields, idea.readinessLevel)
-        summary_result = generate_summary_with_gemini(idea.problem or "", idea.solution or "")
+        # 3. Generate BMC and Summary only if the idea is UNIQUE
+        # This saves your quota!
+        bmc_result = await generate_bmc_with_gemini(
+            idea.problem or "", idea.solution or "", 
+            idea.advantages or "", idea.fields, idea.readinessLevel
+        )
+        summary_result = await generate_summary_with_gemini(
+            idea.problem or "", idea.solution or ""
+        )
 
+        # 4. Save EVERYTHING to memory_db
         new_idea_data = idea.model_dump()
+        new_idea_data["embedding"] = new_vec.tolist() # Convert numpy to list for JSON
         new_idea_data["bmc"] = bmc_result
         new_idea_data["summary"] = summary_result
+        
         memory_db["ideas"].append(new_idea_data)
 
-        return {"status": "accepted", "ideaName": idea.ideaName, "businessModel": bmc_result, "summary": summary_result}
+        return {
+            "status": "accepted", 
+            "ideaName": idea.ideaName, 
+            "businessModel": bmc_result, 
+            "summary": summary_result
+        }
 
     except Exception as e:
-        logger.error(f"Error processing idea: {e}", exc_info=True)
-        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
+        logger.error(f"Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/ideas/count")
 async  def get_ideas_count():
