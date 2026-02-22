@@ -408,10 +408,10 @@ const AddIdeaForm: React.FC<AddIdeaFormProps> = ({ }) => {
 
   return (
     <section className="min-h-screen relative overflow-hidden bg-gradient-to-b from-transparent via-[#EEF9F8] to-transparent">
-<div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 lg:py-20">
-<div className="flex flex-col lg:flex-row justify-center gap-8">
-<div className="w-full lg:flex-1 p-4 lg:p-6">
-              <div className="space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 lg:py-20">
+        <div className="flex flex-col lg:flex-row justify-center gap-8">
+          <div className="w-full lg:flex-1 p-4 lg:p-6">
+            <div className="space-y-6">
 
               <form style={{ marginBottom: '20px' }}>
                 {/* Idea Name */}

@@ -166,24 +166,23 @@ def safe_json_loads(text: str) -> dict:
     text = text.strip().strip("```json").strip("```").strip()
     return json.loads(text)
 
-def is_similar_optimized(new_vec: np.ndarray, existing_ideas: List[dict]) -> tuple:
+def is_similar(new_idea: Idea, existing_ideas: List[dict]) -> tuple:
     if not existing_ideas:
         return False, 0.0, None
-    
-    best_score = -1.0
-    best_name = "Unknown"
-
+    new_vec = embed_text(unified_repr(new_idea.problem, new_idea.solution, new_idea.fields, new_idea.advantages))
+    best_score, best_idea = -1.0, None
     for idea_data in existing_ideas:
-        # Check if we already have the embedding saved
-        if "embedding" in idea_data:
-            old_vec = np.array(idea_data["embedding"])
+        try:
+            idea_fields = {k: v for k, v in idea_data.items() if k in Idea.model_fields}
+            idea = Idea(**idea_fields)
+            old_vec = embed_text(unified_repr(idea.problem, idea.solution, idea.fields, idea.advantages))
             score = cosine(new_vec, old_vec)
-            
             if score > best_score:
-                best_score = score
-                best_name = idea_data.get("ideaName", "Unknown")
-
-    return (best_score >= SIM_THRESHOLD), best_score, best_name
+                best_score, best_idea = score, idea
+        except Exception as e:
+            logger.warning(f"Error processing idea for similarity check: {e}")
+            continue
+    return best_score >= SIM_THRESHOLD, best_score, best_idea
 
 # ============= Gemini AI Schemas =============
 BMC_SCHEMA = {
@@ -206,55 +205,6 @@ BMC_SCHEMA = {
     ],
 }
 
-# Update the schema to include summary
-BMC_AND_SUMMARY_SCHEMA = {
-    "type": "object",
-    "properties": {
-        "summary": {"type": "string"},
-        "bmc": {
-            "type": "object",
-            "properties": {
-                "key_partners": {"type": "array", "items": {"type": "string"}},
-                "key_activities": {"type": "array", "items": {"type": "string"}},
-                "key_resources": {"type": "array", "items": {"type": "string"}},
-                "value_propositions": {"type": "array", "items": {"type": "string"}},
-                "customer_relationships": {"type": "array", "items": {"type": "string"}},
-                "channels": {"type": "array", "items": {"type": "string"}},
-                "customer_segments": {"type": "array", "items": {"type": "string"}},
-                "cost_structure": {"type": "array", "items": {"type": "string"}},
-                "revenue_streams": {"type": "array", "items": {"type": "string"}},
-            },
-            "required": ["key_partners", "key_activities", "key_resources", "value_propositions", "customer_relationships", "channels", "customer_segments", "cost_structure", "revenue_streams"]
-        }
-    },
-    "required": ["summary", "bmc"]
-}
-
-async def generate_analysis_with_gemini(problem: str, solution: str, uvp: str, fields: List[str]):
-    prompt = f"Summarize this and create a BMC: Problem: {problem}, Solution: {solution}, UVP: {uvp}"
-    
-    # Increased wait times to match Google's 55s penalty
-    wait_times = [20, 45, 65] 
-    
-    for attempt in range(3):
-        try:
-            resp = client.models.generate_content(
-                model="gemini-1.5-flash", # Use 1.5-flash, it has higher free quotas than 1.5 
-                contents=prompt,
-                config=GenerateContentConfig(
-                    response_mime_type="application/json",
-                    response_schema=BMC_AND_SUMMARY_SCHEMA,
-                    temperature=0.4,
-                ),
-            )
-            return safe_json_loads(resp.text)
-        except Exception as e:
-            if "429" in str(e) and attempt < 2:
-                logger.warning(f"Quota hit. Sleeping {wait_times[attempt]}s...")
-                time.sleep(wait_times[attempt])
-            else:
-                raise e
-            
 TIPS_SCHEMA = Schema(
     type="OBJECT",
     properties={
@@ -277,7 +227,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
         try:
             # Using 1.5-flash as it is more stable for free tier quotas
             resp = client.models.generate_content(
-                model="gemini-1.5-flash", 
+                model="gemini-2.5-flash", 
                 contents=prompt,
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
@@ -305,11 +255,11 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
     raise Exception("Failed to generate BMC after 3 attempts due to API limits.")
 
 
-async  def generate_summary_with_gemini(problem: str, solution: str) -> str:
+def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -324,7 +274,7 @@ async  def generate_improvement_tips_with_gemini(problem: str, solution: str, uv
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -347,12 +297,8 @@ async  def get_ideas():
     return {"ideas": memory_db["ideas"]}
 
 @app.post("/ideas")
-async def add_idea(idea: Idea):
+async  def add_idea(idea: Idea):
     try:
-        # 1. Generate Embedding FIRST (used for similarity and storage)
-        new_idea_string = unified_repr(idea.problem, idea.solution, idea.fields, idea.advantages)
-        new_vec = embed_text(new_idea_string)
-
         errors = {}
         # content validation logic
         if idea.problem:
@@ -370,50 +316,27 @@ async def add_idea(idea: Idea):
             # To allow submission anyway, comment out the return below
             return {"status": "invalid", "errors": errors}
 
-        # 2. Optimized Similarity Check (Using stored embeddings)
-        similar, score, match_name = is_similar_optimized(new_vec, memory_db["ideas"])
-        
+        similar, score, match = is_similar(idea, memory_db["ideas"])
         if similar:
-            # We only call Gemini if it's a match to get tips
-            tips = await generate_improvement_tips_with_gemini(
-                idea.problem or "", idea.solution or "", idea.advantages or "", 
-                idea.fields, match_name, score, idea.readinessLevel
+            tips = generate_improvement_tips_with_gemini(
+                idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields,
+                match.ideaName if match else "Unknown Idea", score, idea.readinessLevel
             )
-            return {
-                "status": "rejected", 
-                "similarity_score": round(score, 3), 
-                "nearest_match": match_name, 
-                "improvement_tips": tips
-            }
+            return {"status": "rejected", "similarity_score": round(score, 3), "nearest_match": match.ideaName if match else "Unknown", "improvement_tips": tips}
 
-        # 3. Generate BMC and Summary only if the idea is UNIQUE
-        # This saves your quota!
-        # Call the NEW combined function (Only 1 API call instead of 2!)
-        analysis = await generate_analysis_with_gemini(
-            idea.problem or "", idea.solution or "", 
-            idea.advantages or "", idea.fields
-        )
-        
-        bmc_result = analysis["bmc"]
-        summary_result = analysis["summary"]
+        bmc_result = generate_bmc_with_gemini(idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields, idea.readinessLevel)
+        summary_result = generate_summary_with_gemini(idea.problem or "", idea.solution or "")
 
-        # Save to memory
         new_idea_data = idea.model_dump()
-        new_idea_data["embedding"] = new_vec.tolist()
         new_idea_data["bmc"] = bmc_result
         new_idea_data["summary"] = summary_result
         memory_db["ideas"].append(new_idea_data)
 
-        return {
-            "status": "accepted", 
-            "ideaName": idea.ideaName, 
-            "businessModel": bmc_result, 
-            "summary": summary_result
-        }
+        return {"status": "accepted", "ideaName": idea.ideaName, "businessModel": bmc_result, "summary": summary_result}
 
     except Exception as e:
-        logger.error(f"Error: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error processing idea: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Internal Server Error: {str(e)}")
 
 @app.get("/ideas/count")
 async  def get_ideas_count():
