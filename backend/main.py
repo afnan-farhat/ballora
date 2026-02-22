@@ -206,6 +206,55 @@ BMC_SCHEMA = {
     ],
 }
 
+# Update the schema to include summary
+BMC_AND_SUMMARY_SCHEMA = {
+    "type": "object",
+    "properties": {
+        "summary": {"type": "string"},
+        "bmc": {
+            "type": "object",
+            "properties": {
+                "key_partners": {"type": "array", "items": {"type": "string"}},
+                "key_activities": {"type": "array", "items": {"type": "string"}},
+                "key_resources": {"type": "array", "items": {"type": "string"}},
+                "value_propositions": {"type": "array", "items": {"type": "string"}},
+                "customer_relationships": {"type": "array", "items": {"type": "string"}},
+                "channels": {"type": "array", "items": {"type": "string"}},
+                "customer_segments": {"type": "array", "items": {"type": "string"}},
+                "cost_structure": {"type": "array", "items": {"type": "string"}},
+                "revenue_streams": {"type": "array", "items": {"type": "string"}},
+            },
+            "required": ["key_partners", "key_activities", "key_resources", "value_propositions", "customer_relationships", "channels", "customer_segments", "cost_structure", "revenue_streams"]
+        }
+    },
+    "required": ["summary", "bmc"]
+}
+
+async def generate_analysis_with_gemini(problem: str, solution: str, uvp: str, fields: List[str]):
+    prompt = f"Summarize this and create a BMC: Problem: {problem}, Solution: {solution}, UVP: {uvp}"
+    
+    # Increased wait times to match Google's 55s penalty
+    wait_times = [20, 45, 65] 
+    
+    for attempt in range(3):
+        try:
+            resp = client.models.generate_content(
+                model="gemini-1.5-flash", # Use 1.5-flash, it has higher free quotas than 1.5 
+                contents=prompt,
+                config=GenerateContentConfig(
+                    response_mime_type="application/json",
+                    response_schema=BMC_AND_SUMMARY_SCHEMA,
+                    temperature=0.4,
+                ),
+            )
+            return safe_json_loads(resp.text)
+        except Exception as e:
+            if "429" in str(e) and attempt < 2:
+                logger.warning(f"Quota hit. Sleeping {wait_times[attempt]}s...")
+                time.sleep(wait_times[attempt])
+            else:
+                raise e
+            
 TIPS_SCHEMA = Schema(
     type="OBJECT",
     properties={
@@ -228,7 +277,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
         try:
             # Using 1.5-flash as it is more stable for free tier quotas
             resp = client.models.generate_content(
-                model="gemini-2.0-flash", 
+                model="gemini-1.5-flash", 
                 contents=prompt,
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
@@ -260,7 +309,7 @@ async  def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -275,7 +324,7 @@ async  def generate_improvement_tips_with_gemini(problem: str, solution: str, uv
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -339,20 +388,20 @@ async def add_idea(idea: Idea):
 
         # 3. Generate BMC and Summary only if the idea is UNIQUE
         # This saves your quota!
-        bmc_result = await generate_bmc_with_gemini(
+        # Call the NEW combined function (Only 1 API call instead of 2!)
+        analysis = await generate_analysis_with_gemini(
             idea.problem or "", idea.solution or "", 
-            idea.advantages or "", idea.fields, idea.readinessLevel
+            idea.advantages or "", idea.fields
         )
-        summary_result = await generate_summary_with_gemini(
-            idea.problem or "", idea.solution or ""
-        )
+        
+        bmc_result = analysis["bmc"]
+        summary_result = analysis["summary"]
 
-        # 4. Save EVERYTHING to memory_db
+        # Save to memory
         new_idea_data = idea.model_dump()
-        new_idea_data["embedding"] = new_vec.tolist() # Convert numpy to list for JSON
+        new_idea_data["embedding"] = new_vec.tolist()
         new_idea_data["bmc"] = bmc_result
         new_idea_data["summary"] = summary_result
-        
         memory_db["ideas"].append(new_idea_data)
 
         return {
