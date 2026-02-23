@@ -63,7 +63,7 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origin_regex=[r"https://.*\.vercel\.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -229,7 +229,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
         try:
             # Using 1.5-flash as it is more stable for free tier quotas
             resp = client.models.generate_content(
-                model="gemini-1.5-flash", 
+                model="gemini-2.5-flash-lite", 
                 contents=prompt,
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
@@ -261,7 +261,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -276,7 +276,7 @@ async  def generate_improvement_tips_with_gemini(problem: str, solution: str, uv
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
     try:
         resp = client.models.generate_content(
-            model="gemini-1.5-flash",
+            model="gemini-2.5-flash-lite",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -326,7 +326,7 @@ async  def add_idea(idea: Idea):
             )
             return {"status": "rejected", "similarity_score": round(score, 3), "nearest_match": match.ideaName if match else "Unknown", "improvement_tips": tips}
 
-        bmc_result = generate_bmc_with_gemini(idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields, idea.readinessLevel)
+        bmc_result = await generate_bmc_with_gemini(idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields, idea.readinessLevel)
         summary_result = generate_summary_with_gemini(idea.problem or "", idea.solution or "")
 
         new_idea_data = idea.model_dump()
