@@ -60,13 +60,15 @@ origins = [
     "https://ballora-website-5apiio0q0-afnans-projects-4780cb5c.vercel.app"
 ]
 
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 memory_db = {"ideas": []}
 
@@ -227,7 +229,7 @@ async  def generate_bmc_with_gemini(problem: str, solution: str, uvp: str, field
         try:
             # Using 1.5-flash as it is more stable for free tier quotas
             resp = client.models.generate_content(
-                model="gemini-2.5-flash", 
+                model="gemini-1.5-flash", 
                 contents=prompt,
                 config=GenerateContentConfig(
                     response_mime_type="application/json",
@@ -259,7 +261,7 @@ def generate_summary_with_gemini(problem: str, solution: str) -> str:
     prompt = f"Summarize this idea in 2 short sentences:\nProblem: {problem}\nSolution: {solution}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(response_mime_type="text/plain", temperature=0.1)
         )
@@ -274,7 +276,7 @@ async  def generate_improvement_tips_with_gemini(problem: str, solution: str, uv
     prompt = f"Generate improvement tips... Context: New Idea Problem: {problem}, Solution: {solution}, UVP: {uvp}, Match: {nearest}, Score: {score}"
     try:
         resp = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-1.5-flash",
             contents=prompt,
             config=GenerateContentConfig(
                 response_mime_type="application/json",
@@ -318,7 +320,7 @@ async  def add_idea(idea: Idea):
 
         similar, score, match = is_similar(idea, memory_db["ideas"])
         if similar:
-            tips = generate_improvement_tips_with_gemini(
+            tips = await generate_improvement_tips_with_gemini(
                 idea.problem or "", idea.solution or "", idea.advantages or "", idea.fields,
                 match.ideaName if match else "Unknown Idea", score, idea.readinessLevel
             )
