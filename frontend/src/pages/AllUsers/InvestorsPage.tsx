@@ -4,7 +4,6 @@ import { collection, getDocs, query, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import GradientButton from "../../component/GradientButton";
 import type { Investor } from "../../component/Interfaces";
-import WhiteButton from "../../component/WhiteButton";
 
 export default function InvestorsPage() {
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
@@ -129,9 +128,7 @@ export default function InvestorsPage() {
                 <p className="text-gray-700 leading-relaxed mb-6">
                   {selectedInvestor.About_me}
                 </p>
-                {/* <WhiteButton onClick={() => setSelectedInvestor(null)} className="md:hidden w-full mb-8">
-                    Back to List
-                </WhiteButton> */}
+
               </div>
             </div>
 
