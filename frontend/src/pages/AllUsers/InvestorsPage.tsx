@@ -66,8 +66,11 @@ export default function InvestorsPage() {
       <img
         src={investor.photoURL}
         alt={getFullName(investor)}
-        className="w-full h-64 sm:h-80 object-cover"
+        className="w-full h-64 sm:h-80 "
         loading="lazy"
+        onError={(e) => {
+          e.currentTarget.src = "/userIcon.jpeg";
+        }}
       />
       <div className="absolute bottom-0 left-0 right-0 w-full bg-gradient-to-t from-white via-white/90 to-transparent p-4">
         <h3 className="text-lg sm:text-[23px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#3D6A89] to-[#5AB3B6] mb-1 line-clamp-1">
@@ -102,12 +105,15 @@ export default function InvestorsPage() {
         ) : selectedInvestor ? (
           <div className="animate-fadeIn">
             {/* Responsive Details View: Column on mobile, Row on laptop */}
-            <div className="flex flex-col md:flex-row gap-6 md:gap-8">
-              <div className="w-full md:w-64 flex-shrink-0">
+            <div className="flex flex-row gap-4 sm:gap-6 md:gap-8">
+              <div className="w-40 sm:w-40 md:w-64 flex-shrink-0">
                 <img
                   src={selectedInvestor.photoURL}
                   alt={getFullName(selectedInvestor)}
-                  className="w-full h-80 md:w-64 md:h-80 rounded-lg object-cover shadow-md"
+                  className="w-full h-60 md:w-64 md:h-80 rounded-lg object-cover shadow-md"
+                  onError={(e) => {
+                    e.currentTarget.src = "/userIcon.jpeg";
+                  }}
                 />
               </div>
               <div className="flex-1">
@@ -123,16 +129,16 @@ export default function InvestorsPage() {
                 <p className="text-gray-700 leading-relaxed mb-6">
                   {selectedInvestor.About_me}
                 </p>
-                <WhiteButton onClick={() => setSelectedInvestor(null)} className="md:hidden w-full mb-8">
+                {/* <WhiteButton onClick={() => setSelectedInvestor(null)} className="md:hidden w-full mb-8">
                     Back to List
-                </WhiteButton>
+                </WhiteButton> */}
               </div>
             </div>
 
             <div className="mt-10">
               <h3 className="text-lg font-semibold text-gray-800 mb-6">Other Investors</h3>
               {/* Responsive Grid: 1 col mobile, 2 tablet, 4 laptop */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {investors
                   .filter((inv) => inv.id !== selectedInvestor.id)
                   .map((inv) => (

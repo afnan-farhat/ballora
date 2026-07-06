@@ -242,7 +242,8 @@ export default function Idea() {
     <section className="relative">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 md:py-8">
         {/* TOP ROW: Title and Add Idea Button */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div className="w-full flex flex-row items-center justify-between gap-4 mb-6">
+             
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900 font-petrona">
             Ideas
           </h1>
