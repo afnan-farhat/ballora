@@ -5,20 +5,21 @@ import PrivacyModal from "./PrivacyModal";
 export default function Footer() {
   const [isTermsOpen, setIsTermsOpen] = useState(false);
   const [isPrivacyOpen, setIsPrivacyOpen] = useState(false);
+  const currentYear = new Date().getFullYear();
 
   return (
     /* Change 1: Added a background color matching your wave (e.g., #1E4263) to prevent white gaps */
-    <footer className="relative w-full"> 
-      
+    <footer className="relative w-full">
+
       {/* Wave background image */}
       <img src="/footer.png" alt="Footer" className="w-full block h-auto min-h-[120px] object-cover" />
 
       {/* Change 2: Made 'absolute' apply to ALL screens, not just 'md:' */}
       {/* Change 3: Adjusted padding (pt-12 on mobile, pt-28 on desktop) to fit the wave curve */}
       <div className="absolute inset-0 flex flex-col md:flex-row items-center justify-between px-8 py-4 text-white z-10 pt-12 md:pt-28">
-        
-        <p className="text-[10px] md:text-[12px]">Ballora 2025 © All Rights Reserved</p>
-        
+
+        <p className="text-[10px] md:text-[12px]">  Ballora {currentYear} &copy; All Rights Reserved.</p>
+
         <div className="flex space-x-4 md:space-x-6 mt-4 md:mt-0">
           <button
             onClick={() => setIsTermsOpen(true)}

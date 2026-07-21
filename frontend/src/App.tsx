@@ -1,6 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { useUser } from "./pages/authentication/UserContext";
 import { useEffect, useState } from "react";
+import { BarLoader } from "react-spinners";
+
 
 // General Pages 
 import LandingPage from "./pages/landingContent/landingPage";
@@ -38,6 +40,7 @@ function App() {
   const { userRole, loading: authLoading } = useUser();
   const [, setMessage] = useState("");
   const [dataLoading, setDataLoading] = useState(true);
+  const override = { display: "block", margin: "0 auto" };
 
   useEffect(() => {
     fetch(`${import.meta.env.VITE_API_URL}/message`)
@@ -66,10 +69,10 @@ function App() {
 
           {/* Logo Section */}
           <div className="relative mb-8">
-            <div
+            {/* <div
               className="absolute -inset-3 rounded-full opacity-20 animate-ping"
               style={{ backgroundColor: '#a4ebe7' }}
-            ></div>
+            ></div> */}
             <img
               src="/ballora_logo.png"
               alt="Ballora"
@@ -78,19 +81,9 @@ function App() {
           </div>
 
           {/* Working Progress Bar Container */}
-          <div className="w-64 h-1.5 bg-gray-200/40 rounded-full mt-8 overflow-hidden relative backdrop-blur-sm">
-            {/* The Animated Striper */}
-            <div
-              className="h-full absolute left-0 top-0 w-24 animate-loading-slide rounded-full"
-              style={{
-                backgroundColor: '#063D58',
-                boxShadow: '0 0 8px rgba(6, 61, 88, 0.5)'
-              }}
-            ></div>
-          </div>
-
-          <p className="text-[10px] uppercase tracking-[0.3em] text-[#063D58] mt-6 font-bold animate-pulse">
-            Loading Platform...
+          <BarLoader color="#063D58" loading={authLoading || dataLoading} cssOverride={override} aria-label="Loading..." data-testid="loader" />
+          <p className="text-[8px] uppercase tracking-[0.3em] text-[#063D58] mt-6 font-bold align-center animate-pulse ">
+            Loading Ballora... Please wait while we process your request.
           </p>
         </div>
       </div>
