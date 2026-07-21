@@ -82,8 +82,8 @@ function App() {
 
           {/* Working Progress Bar Container */}
           <BarLoader color="#063D58" loading={authLoading || dataLoading} cssOverride={override} aria-label="Loading..." data-testid="loader" />
-          <p className="text-[8px] uppercase tracking-[0.3em] text-[#063D58] mt-6 font-bold align-center animate-pulse ">
-            Loading Ballora... Please wait while we process your request.
+          <p className="text-[8px] uppercase tracking-[0.3em] text-[#063D58] mt-6 font-bold text-center animate-pulse">
+            Loading Ballora...<br className="block sm:hidden" /> Please wait while we process your request.
           </p>
         </div>
       </div>
